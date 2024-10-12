@@ -1,0 +1,74 @@
+Khi đã tạo up source lên github và render
+Thì khi thay đổi source code của project express
+Thì chỉ cần lên github desktop commit rồi render sẽ tự động thay đổi source code
+
+swagger là một công cụ để có thể quản lý các API
+swagger còn có thể test đc API, khá giống postman
+
+npm i swagger-ui-express: Tạo trang web quản lý API
+npm install swagger-jsdoc: Viết document cho từng API
+
+jwt: json web token được dùng phổ biến để xác thực API
+
+API là cấu nối giữa database và chứa năng và sẽ có rất nhiều cách bảo mật API
+Cách bảo mật phổ biến nhất là bảo mật bằng token
+Nếu không có bảo mật thì khi gọi link API nó sẽ trả về dữ liệu ngay lập tức
+Ngược lại thì nó sẽ có thêm một lớp để xác thực xem thử cái người gọi API đó có phải là người dùng của ứng dụng đó hay không
+Token phổ biến nhất là jwt
+
+2 kiểu mã hóa dữ liệu
+- Hash: Khi dữ liệu được băm ra, thì không bao giờ có thể đọc ngược lại dữ liệu ban đầu
+    Hash thường được dùng để bảo mật password
+    Không lưu mật khẩu người dùng trực tiếp vào database, mã sẽ lưu thông qua Hash
+
+- Mã hóa: Khi dữ liệu được mã hóa thành một chuỗi khác thì có thể đọc ngược lại dữ liệu ban đầu
+
+Thường dùng HS256 để mã hóa bảo mật
+Cấu trúc mã hóa của HS256:
+    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+    eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+    SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+Cụ thể như sau:
+- Header: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+    Mang thông tin của token như sau:
+    - Kiểu mã hóa của token
+    - Loại token
+    {
+        "alg": "HS256",
+        "typ": "JWT"
+    }
+    Cho server biết dữ liệu đang dùng loại mã hóa gì
+
+- PAYLOAD: eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+    Là những nội dung mà mình muốn mã hóa
+    Có thể mã hóa bất kỳ loại dữ liệu nào
+    PAYLOAD thường có thời gian tạo và hết hạn token
+
+- VERIFY SIGNATURE: SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    Tạo chữ ký cho token
+    Dùng để xem thử dữ liệu trên phần PAYLOAD nó có đúng hay không
+
+- Để tạo ra một SIGNATURE
+Nó sẽ mã hóa header và payload bằng base64 kèm với một secret key
+Và toàn bộ chuỗi đó được mã hóa thêm một lần nữa bằng HS256, rồi nó sẽ sinh ra
+một cái SIGNATURE: SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  your-256-bit-secret (secret key) là một chuỗi đc lưu trên server và
+  chỉ server mới biết cái secret key nó là cái gì
+) secret base64 encoded
+
+Ví dụ một thằng hacker lấy được dữ liệu và thay đổi rồi đưa lên server
+Thì server dịch ngược SIGNATURE thông qua secret key, khi dịch ngược thì nó sẽ có thông tin của payload
+
+Sử dụng
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+Để xác thực xem ai là người gọi API
+
+Không được phép up biến môi trường lên bất kỳ chỗ lưu trữ nào
+Tốt nhất là nên lưu thẳng lên server
